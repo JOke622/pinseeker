@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tee Time Finder</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header>
+    <img src="{{ url_for('static', filename='pinseeker-logo.png') }}" alt="Pinseeker - Tee Time Finder" class="logo">
+  </header>
+
+  <section class="controls">
+    <label>
+      Date
+      <input type="date" id="date-input">
+    </label>
+    <label>
+      Holes
+      <select id="holes-input">
+        <option value="all">Any</option>
+        <option value="18">18</option>
+        <option value="9">9</option>
+      </select>
+    </label>
+    <label>
+      Players
+      <select id="players-input">
+        <option value="0">Any</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </label>
+    <div class="time-filter">
+      <span class="time-filter-title">Time range</span>
+      <div class="time-slider" id="time-slider">
+        <div class="time-slider-track"></div>
+        <div class="time-slider-fill" id="time-slider-fill"></div>
+        <div class="time-slider-handle" id="time-handle-min" tabindex="0" role="slider"
+             aria-label="Earliest tee time"></div>
+        <div class="time-slider-handle" id="time-handle-max" tabindex="0" role="slider"
+             aria-label="Latest tee time"></div>
+      </div>
+      <div class="time-slider-labels">
+        <span id="time-label-min"></span>
+        <span id="time-label-max"></span>
+      </div>
+    </div>
+    <label>
+      Region
+      <select id="region-input">
+        <option value="all">All regions</option>
+        {% for region in regions %}
+        <option value="{{ region }}">{{ region }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="course-filter-label">
+      Course
+      <select id="course-input">
+        <option value="all">All courses</option>
+        {% for course in courses %}
+        <option value="{{ course.id }}" data-region="{{ course.region }}">{{ course.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button id="search-btn">Search</button>
+  </section>
+
+  <section id="status">
+    <span id="status-spinner" class="spinner" aria-hidden="true"></span>
+    <span id="status-text"></span>
+    <span id="updated-at"></span>
+  </section>
+
+  <div class="view-toggle" role="group" aria-label="Results view">
+    <button type="button" id="view-time-btn" class="view-btn active">By Time</button>
+    <button type="button" id="view-course-btn" class="view-btn">By Course</button>
+  </div>
+
+  <div class="table-scroll">
+    <table id="results-table">
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Course</th>
+          <th>Holes</th>
+          <th>Spots</th>
+          <th>Price</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+    </table>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
