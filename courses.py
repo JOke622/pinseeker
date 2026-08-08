@@ -233,3 +233,18 @@ CLUBCADDIE_COURSES = [
         "booking_url": "https://apimanager-cc29.clubcaddie.com/webapi/view/gafdabab",
     },
 ]
+
+# --- Teesnap (https://{subdomain}.teesnap.net) ---
+# No JSON API in the usual sense - an AngularJS app whose "Teetimes"/"Request"
+# services hit a plain GET, parsed by teesnap_client.py. "course_id" comes from
+# `window.courses` embedded in the page's initial HTML.
+TEESNAP_COURSES = [
+    {
+        "id": "sandy_burr",
+        "name": "Sandy Burr Country Club",
+        "region": "Metro West",
+        "subdomain": "sandyburr",
+        "course_id": 471,
+        "booking_url": "https://sandyburr.teesnap.net/",
+    },
+]

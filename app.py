@@ -12,18 +12,25 @@ import clubprophet_client
 import easytee_client
 import foreup_client
 import teeitup_client
+import teesnap_client
 from courses import (
     CLUBCADDIE_COURSES,
     CLUBPROPHET_COURSES,
     EASYTEE_COURSES,
     FOREUP_COURSES,
     TEEITUP_COURSES,
+    TEESNAP_COURSES,
 )
 
 app = Flask(__name__)
 
 ALL_COURSES = (
-    FOREUP_COURSES + CLUBPROPHET_COURSES + TEEITUP_COURSES + EASYTEE_COURSES + CLUBCADDIE_COURSES
+    FOREUP_COURSES
+    + CLUBPROPHET_COURSES
+    + TEEITUP_COURSES
+    + EASYTEE_COURSES
+    + CLUBCADDIE_COURSES
+    + TEESNAP_COURSES
 )
 REGIONS = sorted({c["region"] for c in ALL_COURSES})
 
@@ -54,8 +61,9 @@ def api_tee_times():
     clubprophet_date_str = parsed_date.strftime("%a %b %d %Y")
     teeitup_date_str = parsed_date.strftime("%Y-%m-%d")
     clubcaddie_date_str = parsed_date.strftime("%m/%d/%Y")
+    teesnap_date_str = parsed_date.strftime("%Y-%m-%d")
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
         foreup_future = pool.submit(
             foreup_client.fetch_all_tee_times, FOREUP_COURSES, foreup_date_str, holes, players
         )
@@ -71,12 +79,16 @@ def api_tee_times():
         clubcaddie_future = pool.submit(
             clubcaddie_client.fetch_all_tee_times, CLUBCADDIE_COURSES, clubcaddie_date_str
         )
+        teesnap_future = pool.submit(
+            teesnap_client.fetch_all_tee_times, TEESNAP_COURSES, teesnap_date_str
+        )
         results = (
             foreup_future.result()
             + clubprophet_future.result()
             + teeitup_future.result()
             + easytee_future.result()
             + clubcaddie_future.result()
+            + teesnap_future.result()
         )
 
     # Only ForeUp's API actually honors the holes/players params server-side (and
