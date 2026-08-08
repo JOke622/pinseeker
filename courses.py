@@ -206,7 +206,7 @@ TEEITUP_COURSES = [
     {
         "id": "unicorn",
         "name": "Unicorn Golf Course",
-        "region": "Greater Boston",  # judgment call - Stoneham, MA; not explicitly assigned
+        "region": "North Shore",
         "alias": "unicorn-golf-course",
         "facility_id": "13988",
         "booking_url": "https://unicorn-golf-course.book.teeitup.golf/?course=13988",
