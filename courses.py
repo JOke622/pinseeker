@@ -209,3 +209,19 @@ EASYTEE_COURSES = [
         "booking_url": "https://app.easyteegolf.com/course/granite-fields-golf-club/",
     },
 ]
+
+# --- ClubCaddie (apimanager-{tenant}.clubcaddie.com) ---
+# No JSON API - a jQuery-era booking widget, parsed by clubcaddie_client.py.
+# "apikey" is the tenant slug from the iframe URL. "course_id" is a numeric id
+# specific to the physical course, found in the rendered search form.
+CLUBCADDIE_COURSES = [
+    {
+        "id": "trull_brook",
+        "name": "Trull Brook Golf Course & Tennis Center",
+        "region": "Metro West",  # judgment call - Tewksbury, MA; not explicitly assigned
+        "base_url": "https://apimanager-cc29.clubcaddie.com",
+        "apikey": "gafdabab",
+        "course_id": "103407",
+        "booking_url": "https://apimanager-cc29.clubcaddie.com/webapi/view/gafdabab",
+    },
+]
