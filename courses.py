@@ -72,6 +72,14 @@ FOREUP_COURSES = [
         "schedule_id": "12886",
         "booking_url": "https://foreupsoftware.com/index.php/booking/22471/12886#/teetimes",
     },
+    {
+        "id": "wayland",
+        "name": "Wayland Country Club",
+        "region": "Metro West",
+        "base_url": "https://foreupsoftware.com",
+        "schedule_id": "6536",
+        "booking_url": "https://foreupsoftware.com/index.php/booking/21030/6536#/teetimes",
+    },
 ]
 
 CLUBPROPHET_COURSES = [
@@ -218,7 +226,7 @@ CLUBCADDIE_COURSES = [
     {
         "id": "trull_brook",
         "name": "Trull Brook Golf Course & Tennis Center",
-        "region": "Metro West",  # judgment call - Tewksbury, MA; not explicitly assigned
+        "region": "North Shore",
         "base_url": "https://apimanager-cc29.clubcaddie.com",
         "apikey": "gafdabab",
         "course_id": "103407",
