@@ -175,6 +175,38 @@ header {
   white-space: nowrap;
 }
 
+.unavailable-toggle {
+  border: 1px solid var(--border);
+  background: #f3f4f6;
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.unavailable-toggle:hover {
+  background: #e5e7eb;
+}
+
+.unavailable-detail {
+  list-style: none;
+  margin: -4px 0 12px;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  columns: 2;
+  column-gap: 24px;
+}
+
+.unavailable-detail li {
+  padding: 2px 0;
+}
+
 .spinner {
   display: none;
   width: 14px;
@@ -329,4 +361,7 @@ a.book-link:hover {
   tr.group-header td { background: #111827; }
   .group-toggle:hover { background: #26314a; }
   .group-toggle-icon { border-color: #374151; }
+  .unavailable-toggle { background: #1f2937; border-color: #374151; }
+  .unavailable-toggle:hover { background: #26314a; }
+  .unavailable-detail { background: #111827; border-color: #374151; }
 }

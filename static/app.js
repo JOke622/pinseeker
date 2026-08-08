@@ -8,6 +8,8 @@ const statusEl = document.getElementById("status");
 const statusText = document.getElementById("status-text");
 const statusSpinner = document.getElementById("status-spinner");
 const updatedAtEl = document.getElementById("updated-at");
+const unavailableToggle = document.getElementById("unavailable-toggle");
+const unavailableDetail = document.getElementById("unavailable-detail");
 const resultsBody = document.getElementById("results-body");
 const resultsTable = document.getElementById("results-table");
 const viewTimeBtn = document.getElementById("view-time-btn");
@@ -294,16 +296,19 @@ function applyFiltersAndRender() {
     return minutes === null || (minutes >= timeRange.min && minutes <= timeRange.max);
   });
 
+  setStatus(`Showing ${teeTimes.length} tee times across ${lastResult.courses.length} course(s).`, false);
+
   const courseErrors = (lastResult.courses || []).filter((c) => c.error);
   if (courseErrors.length > 0) {
-    setStatus(
-      `Showing ${teeTimes.length} tee times. ` +
-        courseErrors.map((c) => `${c.course_name} failed: ${c.error}`).join(" | "),
-      true
-    );
+    unavailableToggle.hidden = false;
+    unavailableToggle.textContent = `${courseErrors.length} course${courseErrors.length === 1 ? "" : "s"} unavailable`;
+    unavailableDetail.innerHTML = courseErrors
+      .map((c) => `<li>${c.course_name}</li>`)
+      .join("");
   } else {
-    setStatus(`Showing ${teeTimes.length} tee times across ${lastResult.courses.length} course(s).`, false);
+    unavailableToggle.hidden = true;
   }
+  unavailableDetail.hidden = true;
 
   if (lastUpdated) {
     updatedAtEl.textContent = `Updated at ${lastUpdated.toLocaleTimeString()}`;
@@ -365,5 +370,8 @@ regionInput.addEventListener("change", () => {
 });
 viewTimeBtn.addEventListener("click", () => setView("time"));
 viewCourseBtn.addEventListener("click", () => setView("course"));
+unavailableToggle.addEventListener("click", () => {
+  unavailableDetail.hidden = !unavailableDetail.hidden;
+});
 
 search();
