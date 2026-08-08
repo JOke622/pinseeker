@@ -13,6 +13,7 @@ Times in the response are UTC and need converting to the course's local time zon
 """
 import concurrent.futures
 from datetime import datetime
+from urllib.parse import urlencode, urlsplit, urlunsplit
 from zoneinfo import ZoneInfo
 
 import requests
@@ -40,8 +41,32 @@ def _price_for(rates, hole_count):
     return None
 
 
+def _deep_link(course, parsed_local, holes):
+    """Pre-fill the site's own search form (date/holes/players), reverse-engineered
+    from a real "share search" URL the user had bookmarked
+    (?course=..&date=YYYY-MM-DD&golfers=..&holes=..&max=999999). Keeps whatever
+    domain (book.teeitup vs play.teeitup) the course's own booking_url already uses.
+    """
+    base = course.get("booking_url") or ""
+    split = urlsplit(base)
+    origin = urlunsplit((split.scheme, split.netloc, split.path, "", ""))
+    params = {
+        "date": parsed_local.strftime("%Y-%m-%d"),
+        "golfers": 1,
+        "holes": holes if holes else "",
+        "max": 999999,
+    }
+    if course.get("facility_id"):
+        params["course"] = course["facility_id"]
+    return f"{origin}?{urlencode(params)}"
+
+
 def _normalize_entry(course, entry):
     time_str = entry.get("teetime")
+    rates = entry.get("rates") or []
+    holes = rates[0].get("holes") if rates else None
+    booking_url = course.get("booking_url")
+
     try:
         parsed_utc = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
             tzinfo=ZoneInfo("UTC")
@@ -50,12 +75,11 @@ def _normalize_entry(course, entry):
         hour_12 = parsed_local.hour % 12 or 12
         display_time = f"{hour_12}:{parsed_local.minute:02d} {'AM' if parsed_local.hour < 12 else 'PM'}"
         sort_key = parsed_local.isoformat()
+        booking_url = _deep_link(course, parsed_local, holes)
     except (TypeError, ValueError):
         display_time = time_str
         sort_key = time_str or ""
 
-    rates = entry.get("rates") or []
-    holes = rates[0].get("holes") if rates else None
     max_players = entry.get("maxPlayers") or 0
     booked = entry.get("bookedPlayers") or 0
 
@@ -73,7 +97,7 @@ def _normalize_entry(course, entry):
         "cart_fee_18": None,
         "cart_fee_9": None,
         "requires_credit_card": False,
-        "booking_url": course.get("booking_url"),
+        "booking_url": booking_url,
     }
 
 

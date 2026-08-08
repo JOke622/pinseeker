@@ -15,6 +15,7 @@ and combined into one list per course.
 """
 import concurrent.futures
 from datetime import datetime
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -50,6 +51,12 @@ def _normalize_item(course, item, holes, date_str):
     muted = item.select_one("h6.text-muted")
     spots = _parse_golfers(muted.get_text(strip=True)) if muted else 0
 
+    # Each listing already carries its own exact "Reserve" deep link
+    # (/course/{slug}/book/?days=N&h=HH&m=MM) - use that directly instead of
+    # the generic course search page.
+    reserve_link = item.select_one("a.btn-primary")
+    booking_url = urljoin(BASE_URL, reserve_link["href"]) if reserve_link else course.get("booking_url")
+
     try:
         parsed = datetime.strptime(f"{date_str} {time_text}", "%Y-%m-%d %I:%M %p")
         sort_key = parsed.isoformat()
@@ -70,7 +77,7 @@ def _normalize_item(course, item, holes, date_str):
         "cart_fee_18": None,
         "cart_fee_9": None,
         "requires_credit_card": False,
-        "booking_url": course.get("booking_url"),
+        "booking_url": booking_url,
     }
 
 

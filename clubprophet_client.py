@@ -18,6 +18,7 @@ George Wright under courseId 1 and 2).
 import concurrent.futures
 import uuid
 from datetime import datetime
+from urllib.parse import urlencode
 
 import requests
 
@@ -76,13 +77,33 @@ def _price_for(item_prices, hole_count):
     return None
 
 
+def _deep_link(course, parsed, holes):
+    """Pre-fill the site's own search form for this exact date/hole/time, so the
+    user lands on (close to) the specific slot instead of a blank search. Param
+    names/format reverse-engineered from a real "share search" URL the user had
+    bookmarked (?CourseId=..&Player=..&Hole=..&Date=YYYY-M-D&TeeOffTimeMin=..&Max=..).
+    """
+    base = f"https://{course['cps_site']}.cps.golf/onlineresweb/search-teetime"
+    params = {
+        "CourseId": course["course_id"],
+        "Player": 1,
+        "Hole": holes if holes else "",
+        "Date": f"{parsed.year}-{parsed.month}-{parsed.day}",
+        "TeeOffTimeMin": parsed.hour,
+        "TeeOffTimeMax": min(parsed.hour + 1, 24),
+    }
+    return f"{base}?{urlencode(params)}"
+
+
 def _normalize_entry(course, entry):
     start = entry.get("startTime")
+    booking_url = course.get("booking_url")
     try:
         parsed = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
         hour_12 = parsed.hour % 12 or 12
         display_time = f"{hour_12}:{parsed.minute:02d} {'AM' if parsed.hour < 12 else 'PM'}"
         sort_key = parsed.isoformat()
+        booking_url = _deep_link(course, parsed, entry.get("holes"))
     except (TypeError, ValueError):
         display_time = start
         sort_key = start or ""
@@ -105,7 +126,7 @@ def _normalize_entry(course, entry):
         "cart_fee_18": None,
         "cart_fee_9": None,
         "requires_credit_card": False,
-        "booking_url": course.get("booking_url"),
+        "booking_url": booking_url,
     }
 
 
