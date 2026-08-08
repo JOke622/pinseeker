@@ -203,6 +203,14 @@ TEEITUP_COURSES = [
         "alias": "c89e81dd-f47b-40ff-a530-6352b36dbdcb",
         "booking_url": "https://c89e81dd-f47b-40ff-a530-6352b36dbdcb.play.teeitup.com",
     },
+    {
+        "id": "unicorn",
+        "name": "Unicorn Golf Course",
+        "region": "Greater Boston",  # judgment call - Stoneham, MA; not explicitly assigned
+        "alias": "unicorn-golf-course",
+        "facility_id": "13988",
+        "booking_url": "https://unicorn-golf-course.book.teeitup.golf/?course=13988",
+    },
 ]
 
 # --- EasyTee Golf (app.easyteegolf.com) ---
