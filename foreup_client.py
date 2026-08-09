@@ -4,8 +4,15 @@ Client for ForeUp Software's public booking-times API.
 This calls the same JSON endpoint the ForeUp booking widget itself calls
 to render available tee times (no login required) - avoids brittle
 DOM/Selenium scraping.
+
+Each course can have several "booking classes" (rate tiers) with different
+booking windows (e.g. a public 7-day window vs. a members-only 9-day one) -
+the plain/default query (booking_class="") only gets the *shortest* one,
+which silently truncates how far out results go. _best_booking_class() finds
+the longest-window class that doesn't require login and uses that instead.
 """
 import concurrent.futures
+import re
 from datetime import datetime
 
 import requests
@@ -19,6 +26,52 @@ HEADERS = {
     ),
     "Accept": "application/json",
 }
+
+_BOOKING_CLASS_RE = re.compile(
+    r'"booking_class_id":"(\d+)".*?"name":"([^"]*)".*?'
+    r'"online_booking_protected":"(\d)".*?"days_in_booking_window":"(\d+)"'
+)
+_DEFAULT_WINDOW_RE = re.compile(r'"days_in_booking_window":"(\d+)","default":"1"')
+_COURSE_ID_RE = re.compile(r"/booking/(\d+)/")
+
+_booking_class_cache = {}  # course id -> best booking_class string ("" if none better)
+
+
+def _best_booking_class(course):
+    """Find the public (non-login) booking class with the largest booking
+    window for this course, if any beat the plain default. Cached per course
+    for the life of the process; falls back to "" (default behavior) on any
+    failure so a discovery hiccup never breaks the actual tee-time fetch.
+    """
+    if course["id"] in _booking_class_cache:
+        return _booking_class_cache[course["id"]]
+
+    best = ""
+    try:
+        match = _COURSE_ID_RE.search(course.get("booking_url", ""))
+        course_num_id = match.group(1) if match else None
+        if course_num_id:
+            resp = requests.get(
+                f"{course['base_url']}/index.php/booking/{course_num_id}/{course['schedule_id']}",
+                headers={**HEADERS, "Accept": "text/html"},
+                timeout=REQUEST_TIMEOUT_SECONDS,
+            )
+            resp.raise_for_status()
+            text = resp.text
+
+            default_match = _DEFAULT_WINDOW_RE.search(text)
+            default_window = int(default_match.group(1)) if default_match else 0
+
+            best_window = default_window
+            for class_id, _name, protected, window in _BOOKING_CLASS_RE.findall(text):
+                if protected == "0" and int(window) > best_window:
+                    best_window = int(window)
+                    best = class_id
+    except Exception:  # noqa: BLE001 - discovery is best-effort, never fatal
+        best = ""
+
+    _booking_class_cache[course["id"]] = best
+    return best
 
 
 def _normalize_entry(course, entry):
@@ -57,7 +110,7 @@ def fetch_course_tee_times(course, date_str, holes="all", players=0):
         "date": date_str,
         "holes": holes,
         "players": players,
-        "booking_class": "",
+        "booking_class": _best_booking_class(course),
         "schedule_id": course["schedule_id"],
         "specials_only": 0,
         "api_key": API_KEY,
