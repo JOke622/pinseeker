@@ -78,9 +78,14 @@
   </section>
   <ul id="unavailable-detail" class="unavailable-detail" hidden></ul>
 
-  <div class="view-toggle" role="group" aria-label="Results view">
-    <button type="button" id="view-time-btn" class="view-btn active">By Time</button>
-    <button type="button" id="view-course-btn" class="view-btn">By Course</button>
+  <div class="view-row">
+    <div class="view-toggle" role="group" aria-label="Results view">
+      <button type="button" id="view-time-btn" class="view-btn active">By Time</button>
+      <button type="button" id="view-course-btn" class="view-btn">By Course</button>
+    </div>
+    <button type="button" id="favorites-filter-btn" class="favorites-filter-btn" aria-pressed="false">
+      <span class="favorite-star-icon">☆</span> Favorites only
+    </button>
   </div>
 
   <div class="table-scroll">

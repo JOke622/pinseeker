@@ -233,7 +233,6 @@ header {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 4px;
-  margin-bottom: 12px;
 }
 
 .view-btn {
@@ -275,6 +274,8 @@ table {
 }
 
 tr.group-header td {
+  display: flex;
+  align-items: center;
   background: #f3f4f6;
   font-weight: 600;
   padding: 0;
@@ -284,7 +285,8 @@ tr.group-header td {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   padding: 10px 12px;
   border: none;
   background: transparent;
@@ -316,6 +318,61 @@ tr.group-header td {
 .group-count {
   font-weight: 400;
   color: var(--muted);
+}
+
+.favorite-star {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--border);
+  font-size: 1.05rem;
+  line-height: 1;
+  padding: 4px 8px;
+  cursor: pointer;
+  vertical-align: -2px;
+}
+
+.favorite-star:hover {
+  color: #d97706;
+}
+
+.favorite-star.active {
+  color: #f59e0b;
+}
+
+.view-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.favorites-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.favorites-filter-btn:hover {
+  color: #1f2937;
+}
+
+.favorites-filter-btn.active {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  color: #b45309;
+}
+
+.favorite-star-icon {
+  color: inherit;
 }
 
 th, td {
@@ -364,4 +421,10 @@ a.book-link:hover {
   .unavailable-toggle { background: #1f2937; border-color: #374151; }
   .unavailable-toggle:hover { background: #26314a; }
   .unavailable-detail { background: #111827; border-color: #374151; }
+  .favorites-filter-btn { background: #1f2937; border-color: #374151; color: #e5e7eb; }
+  .favorites-filter-btn:hover { color: #fff; }
+  .favorites-filter-btn.active { background: #3f2d0f; border-color: #f59e0b; color: #fbbf24; }
+  .favorite-star { color: #4b5563; }
+  .favorite-star:hover { color: #f59e0b; }
+  .favorite-star.active { color: #fbbf24; }
 }

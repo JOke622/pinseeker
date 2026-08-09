@@ -14,6 +14,7 @@ const resultsBody = document.getElementById("results-body");
 const resultsTable = document.getElementById("results-table");
 const viewTimeBtn = document.getElementById("view-time-btn");
 const viewCourseBtn = document.getElementById("view-course-btn");
+const favoritesFilterBtn = document.getElementById("favorites-filter-btn");
 
 const timeSlider = document.getElementById("time-slider");
 const timeFill = document.getElementById("time-slider-fill");
@@ -30,13 +31,57 @@ let timeRange = { min: TIME_MIN, max: TIME_MAX };
 let lastResult = null; // most recent /api/tee-times response, re-filtered client-side
 let lastUpdated = null; // Date the last successful fetch completed
 let currentView = "time"; // "time" (flat, sorted by time) or "course" (grouped by course)
+let favoritesOnly = false;
 
 // course_id -> region, read off the Course dropdown's data-region attributes
 // (courses.py is the source of truth; the template stamps it onto each option).
+// Also stash each option's clean display name so favorite-star prefixes can be
+// added/removed without accumulating.
 const COURSE_REGIONS = {};
 for (const opt of courseInput.options) {
-  if (opt.value !== "all") COURSE_REGIONS[opt.value] = opt.dataset.region;
+  if (opt.value !== "all") {
+    COURSE_REGIONS[opt.value] = opt.dataset.region;
+    opt.dataset.name = opt.textContent;
+  }
 }
+
+const FAVORITES_KEY = "pinseeker-favorite-courses";
+let favoriteCourseIds = new Set();
+try {
+  favoriteCourseIds = new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]"));
+} catch {
+  favoriteCourseIds = new Set();
+}
+
+function isFavorite(courseId) {
+  return favoriteCourseIds.has(courseId);
+}
+
+function updateCourseOptionLabels() {
+  for (const opt of courseInput.options) {
+    if (opt.value === "all") continue;
+    const name = opt.dataset.name;
+    opt.textContent = isFavorite(opt.value) ? `★ ${name}` : name;
+  }
+}
+
+function toggleFavorite(courseId) {
+  if (favoriteCourseIds.has(courseId)) {
+    favoriteCourseIds.delete(courseId);
+  } else {
+    favoriteCourseIds.add(courseId);
+  }
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favoriteCourseIds]));
+  updateCourseOptionLabels();
+  applyFiltersAndRender();
+}
+
+function favoriteStarHtml(courseId) {
+  const active = isFavorite(courseId);
+  return `<button type="button" class="favorite-star${active ? " active" : ""}" data-course-id="${courseId}" aria-label="${active ? "Remove from" : "Add to"} favorites" aria-pressed="${active}">${active ? "★" : "☆"}</button>`;
+}
+
+updateCourseOptionLabels();
 
 // Limits the Course dropdown to courses in the selected region. If the
 // currently-selected course falls outside the new region, resets to "all".
@@ -193,7 +238,7 @@ function relevantPrice(tt) {
 function rowHtml(tt) {
   return `
     <td>${tt.display_time ?? ""}</td>
-    <td>${tt.course_name ?? ""}</td>
+    <td>${favoriteStarHtml(tt.course_id)} ${tt.course_name ?? ""}</td>
     <td>${tt.holes ?? "-"}</td>
     <td>${tt.available_spots ?? "-"}</td>
     <td>${formatMoney(relevantPrice(tt))}</td>
@@ -241,6 +286,7 @@ function renderGroupedRows(teeTimes) {
     const times = groups.get(courseName);
     times.sort((a, b) => (a.sort_key || "").localeCompare(b.sort_key || ""));
     const isExpanded = expandedGroups.has(courseName);
+    const courseId = times[0].course_id;
 
     const headerRow = document.createElement("tr");
     headerRow.className = "group-header";
@@ -250,6 +296,7 @@ function renderGroupedRows(teeTimes) {
           <span class="group-toggle-icon">${isExpanded ? "−" : "+"}</span>
           ${courseName} <span class="group-count">(${times.length})</span>
         </button>
+        ${favoriteStarHtml(courseId)}
       </td>
     `;
     resultsBody.appendChild(headerRow);
@@ -290,6 +337,9 @@ function applyFiltersAndRender() {
   }
   if (selectedRegion !== "all") {
     teeTimes = teeTimes.filter((tt) => COURSE_REGIONS[tt.course_id] === selectedRegion);
+  }
+  if (favoritesOnly) {
+    teeTimes = teeTimes.filter((tt) => isFavorite(tt.course_id));
   }
   teeTimes = teeTimes.filter((tt) => {
     const minutes = minutesFromSortKey(tt.sort_key);
@@ -372,6 +422,19 @@ viewTimeBtn.addEventListener("click", () => setView("time"));
 viewCourseBtn.addEventListener("click", () => setView("course"));
 unavailableToggle.addEventListener("click", () => {
   unavailableDetail.hidden = !unavailableDetail.hidden;
+});
+favoritesFilterBtn.addEventListener("click", () => {
+  favoritesOnly = !favoritesOnly;
+  favoritesFilterBtn.classList.toggle("active", favoritesOnly);
+  favoritesFilterBtn.setAttribute("aria-pressed", String(favoritesOnly));
+  applyFiltersAndRender();
+});
+// Event delegation: star buttons are re-created on every render, so one
+// listener on the (persistent) results body handles all of them.
+resultsBody.addEventListener("click", (e) => {
+  const btn = e.target.closest(".favorite-star");
+  if (!btn) return;
+  toggleFavorite(btn.dataset.courseId);
 });
 
 search();
