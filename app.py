@@ -3,6 +3,7 @@ import truststore
 truststore.inject_into_ssl()  # trust the OS (corporate) certificate store, needed on this network
 
 import concurrent.futures
+import os
 from datetime import datetime
 
 from flask import Flask, jsonify, render_template, request
@@ -130,4 +131,5 @@ def api_tee_times():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, port=port)
