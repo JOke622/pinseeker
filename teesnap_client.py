@@ -109,6 +109,16 @@ def fetch_course_tee_times(course, date_str):
             headers={**HEADERS_BASE, "Referer": f"{base_url}/"},
             timeout=REQUEST_TIMEOUT_SECONDS,
         )
+        if resp.status_code == 400 and resp.json().get("errors") == "date_not_allowed":
+            # Requested date is outside this course's booking window - that's
+            # not a failure, just "nothing to show yet" like any other date
+            # with no availability.
+            return {
+                "course_id": course["id"],
+                "course_name": course["name"],
+                "error": None,
+                "tee_times": [],
+            }
         resp.raise_for_status()
         payload = resp.json().get("teeTimes") or {}
         slots = payload.get("teeTimes") or []
