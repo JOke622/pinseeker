@@ -256,3 +256,20 @@ TEESNAP_COURSES = [
         "booking_url": "https://sandyburr.teesnap.net/",
     },
 ]
+
+# --- Chronogolf / Lightspeed Golf (chronogolf.com) ---
+# No iframe needed - the widget just links to https://www.chronogolf.com/club/{slug}.
+# "club_id" and "course_id" come from that page's embedded __NEXT_DATA__ JSON;
+# "affiliation_type_id" is the public rate category, required by the API or it
+# 422s with "Player type provided is not valid".
+CHRONOGOLF_COURSES = [
+    {
+        "id": "black_swan",
+        "name": "Black Swan Country Club",
+        "region": "North Shore",
+        "club_id": 7429,
+        "course_id": 8478,
+        "affiliation_type_id": 30538,
+        "booking_url": "https://www.chronogolf.com/club/black-swan-country-club",
+    },
+]

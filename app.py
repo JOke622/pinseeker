@@ -7,6 +7,7 @@ from datetime import datetime
 
 from flask import Flask, jsonify, render_template, request
 
+import chronogolf_client
 import clubcaddie_client
 import clubprophet_client
 import easytee_client
@@ -14,6 +15,7 @@ import foreup_client
 import teeitup_client
 import teesnap_client
 from courses import (
+    CHRONOGOLF_COURSES,
     CLUBCADDIE_COURSES,
     CLUBPROPHET_COURSES,
     EASYTEE_COURSES,
@@ -31,6 +33,7 @@ ALL_COURSES = (
     + EASYTEE_COURSES
     + CLUBCADDIE_COURSES
     + TEESNAP_COURSES
+    + CHRONOGOLF_COURSES
 )
 REGIONS = sorted({c["region"] for c in ALL_COURSES})
 
@@ -62,8 +65,9 @@ def api_tee_times():
     teeitup_date_str = parsed_date.strftime("%Y-%m-%d")
     clubcaddie_date_str = parsed_date.strftime("%m/%d/%Y")
     teesnap_date_str = parsed_date.strftime("%Y-%m-%d")
+    chronogolf_date_str = parsed_date.strftime("%Y-%m-%d")
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=6) as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=7) as pool:
         foreup_future = pool.submit(
             foreup_client.fetch_all_tee_times, FOREUP_COURSES, foreup_date_str, holes, players
         )
@@ -82,6 +86,9 @@ def api_tee_times():
         teesnap_future = pool.submit(
             teesnap_client.fetch_all_tee_times, TEESNAP_COURSES, teesnap_date_str
         )
+        chronogolf_future = pool.submit(
+            chronogolf_client.fetch_all_tee_times, CHRONOGOLF_COURSES, chronogolf_date_str
+        )
         results = (
             foreup_future.result()
             + clubprophet_future.result()
@@ -89,6 +96,7 @@ def api_tee_times():
             + easytee_future.result()
             + clubcaddie_future.result()
             + teesnap_future.result()
+            + chronogolf_future.result()
         )
 
     # Only ForeUp's API actually honors the holes/players params server-side (and
