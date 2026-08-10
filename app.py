@@ -110,11 +110,14 @@ def api_tee_times():
                 tt for tt in r["tee_times"] if holes in str(tt.get("holes")).split("/")
             ]
 
-    if players > 0:
-        for r in results:
-            r["tee_times"] = [
-                tt for tt in r["tee_times"] if (tt.get("available_spots") or 0) >= players
-            ]
+    # A slot with 0 available spots isn't actually bookable (some platforms,
+    # e.g. TeeItUp, still list it rather than omitting it) - always require at
+    # least 1, and more if the user asked for a specific player count.
+    min_spots = max(players, 1)
+    for r in results:
+        r["tee_times"] = [
+            tt for tt in r["tee_times"] if (tt.get("available_spots") or 0) >= min_spots
+        ]
 
     combined = [tt for r in results for tt in r["tee_times"]]
     combined.sort(key=lambda tt: tt["sort_key"])

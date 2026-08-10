@@ -33,7 +33,15 @@ DEFAULT_TIMEZONE = "America/New_York"
 def _price_for(rates, hole_count):
     for rate in rates:
         if rate.get("holes") == hole_count:
-            cents = rate.get("greenFeeWalking")
+            # A promotion, when present, is the actual price shown/charged
+            # (e.g. a 43% "hot deal" discount) - the plain greenFee* fields
+            # are the pre-discount list price, not what the site displays.
+            promo = rate.get("promotion") or {}
+            cents = promo.get("greenFeeWalking")
+            if cents is None:
+                cents = promo.get("greenFeeCart")
+            if cents is None:
+                cents = rate.get("greenFeeWalking")
             if cents is None:
                 cents = rate.get("greenFeeCart")
             if cents is not None:
