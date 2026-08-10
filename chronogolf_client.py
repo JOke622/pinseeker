@@ -91,7 +91,13 @@ def _fetch_holes_variant(course, date_str, holes):
     entries = resp.json()
     if not isinstance(entries, list):
         raise ValueError(f"Unexpected response shape: {type(entries)}")
-    return [_normalize_entry(course, e, holes) for e in entries]
+    # Slots that aren't actually bookable at this hole count/rate (e.g. an
+    # 18-hole query against a 9-hole-only course) come back with no
+    # "green_fees" and a "restrictions" message instead of a price - skip
+    # those rather than showing a priceless fake "available" slot.
+    return [
+        _normalize_entry(course, e, holes) for e in entries if e.get("green_fees")
+    ]
 
 
 def fetch_course_tee_times(course, date_str):

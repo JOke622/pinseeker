@@ -57,14 +57,6 @@ FOREUP_COURSES = [
         "booking_url": "https://foreupsoftware.com/index.php/booking/21009/6440#/teetimes",
     },
     {
-        "id": "stow_acres",
-        "name": "Stow Acres Country Club",
-        "region": "Metro West",
-        "base_url": "https://foreupsoftware.com",
-        "schedule_id": "3228",
-        "booking_url": "https://foreupsoftware.com/index.php/booking/19972/3228#/teetimes",
-    },
-    {
         "id": "pease",
         "name": "Pease Golf Course",
         "region": "Southern Maine/New Hampshire",
@@ -271,5 +263,23 @@ CHRONOGOLF_COURSES = [
         "course_id": 8478,
         "affiliation_type_id": 30538,
         "booking_url": "https://www.chronogolf.com/club/black-swan-country-club",
+    },
+    {
+        "id": "stow_acres_south",
+        "name": "Stow Acres - South Course",
+        "region": "Metro West",
+        "club_id": 19738,
+        "course_id": 27974,
+        "affiliation_type_id": 146786,
+        "booking_url": "https://www.chronogolf.com/club/stow-acres-country-club",
+    },
+    {
+        "id": "stow_acres_north",
+        "name": "Stow Acres - North Course",
+        "region": "Metro West",
+        "club_id": 19738,
+        "course_id": 28002,
+        "affiliation_type_id": 146786,
+        "booking_url": "https://www.chronogolf.com/club/stow-acres-country-club",
     },
 ]
