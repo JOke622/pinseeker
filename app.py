@@ -1,9 +1,18 @@
-import truststore
+import os
 
-truststore.inject_into_ssl()  # trust the OS (corporate) certificate store, needed on this network
+# Only needed on the corporate laptop this was developed on, whose SSL-
+# intercepting proxy breaks the normal certifi trust store - Render sets
+# RENDER=true on every service, and its containers have no such proxy, so
+# forcing the (differently-shaped, minimal-container) OS cert store there
+# instead of certifi does more harm than good. Left it on unconditionally
+# once and it broke TLS to every third-party host at once (SSLEOFError),
+# not just one - that cross-domain pattern is the tell it's ours, not theirs.
+if not os.environ.get("RENDER"):
+    import truststore
+
+    truststore.inject_into_ssl()
 
 import concurrent.futures
-import os
 from datetime import datetime
 
 from flask import Flask, jsonify, render_template, request
