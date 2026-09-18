@@ -80,6 +80,41 @@ header {
   flex-basis: 100%;
 }
 
+.region-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  flex-basis: 100%;
+}
+
+.region-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.region-chip {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.region-chip:hover {
+  color: #1f2937;
+}
+
+.region-chip.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+
 .time-slider {
   position: relative;
   height: 20px;
@@ -483,4 +518,6 @@ a.book-link:hover {
   .favorite-star.active { color: #fbbf24; }
   .directory-section { border-color: #374151; }
   .directory-item { background: #1f2937; border-color: #374151; }
+  .region-chip { background: #1f2937; border-color: #374151; color: #e5e7eb; }
+  .region-chip:hover { color: #fff; }
 }

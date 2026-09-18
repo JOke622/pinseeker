@@ -1,7 +1,7 @@
 const dateInput = document.getElementById("date-input");
 const holesInput = document.getElementById("holes-input");
 const playersInput = document.getElementById("players-input");
-const regionInput = document.getElementById("region-input");
+const regionChipsContainer = document.getElementById("region-chips");
 const courseInput = document.getElementById("course-input");
 const searchBtn = document.getElementById("search-btn");
 const statusEl = document.getElementById("status");
@@ -17,12 +17,45 @@ const viewCourseBtn = document.getElementById("view-course-btn");
 const favoritesFilterBtn = document.getElementById("favorites-filter-btn");
 const directoryItems = document.querySelectorAll(".directory-item");
 
+// Empty set = "All regions". Otherwise a course/item matches if its region
+// is one of the selected ones (multi-select, chip-based).
+let selectedRegions = new Set();
+
+function isRegionSelected(region) {
+  return selectedRegions.size === 0 || selectedRegions.has(region);
+}
+
+function setRegionChipsUI() {
+  for (const chip of regionChipsContainer.querySelectorAll(".region-chip")) {
+    const isAllChip = chip.dataset.region === "all";
+    const active = isAllChip ? selectedRegions.size === 0 : selectedRegions.has(chip.dataset.region);
+    chip.classList.toggle("active", active);
+    chip.setAttribute("aria-pressed", String(active));
+  }
+}
+
+regionChipsContainer.addEventListener("click", (e) => {
+  const chip = e.target.closest(".region-chip");
+  if (!chip) return;
+  const region = chip.dataset.region;
+  if (region === "all") {
+    selectedRegions.clear();
+  } else if (selectedRegions.has(region)) {
+    selectedRegions.delete(region);
+  } else {
+    selectedRegions.add(region);
+  }
+  setRegionChipsUI();
+  updateCourseOptions();
+  updateDirectoryList();
+  applyFiltersAndRender();
+});
+
 // The directory list (courses we can only link to, not fetch) has no
 // date/holes/players dimension - only Region applies to it.
 function updateDirectoryList() {
-  const selectedRegion = regionInput.value;
   for (const item of directoryItems) {
-    item.hidden = selectedRegion !== "all" && item.dataset.region !== selectedRegion;
+    item.hidden = !isRegionSelected(item.dataset.region);
   }
 }
 
@@ -93,14 +126,13 @@ function favoriteStarHtml(courseId) {
 
 updateCourseOptionLabels();
 
-// Limits the Course dropdown to courses in the selected region. If the
-// currently-selected course falls outside the new region, resets to "all".
+// Limits the Course dropdown to courses in the selected region(s). If the
+// currently-selected course falls outside the new selection, resets to "all".
 function updateCourseOptions() {
-  const selectedRegion = regionInput.value;
   let selectedIsHidden = false;
   for (const opt of courseInput.options) {
     if (opt.value === "all") continue;
-    const matches = selectedRegion === "all" || opt.dataset.region === selectedRegion;
+    const matches = isRegionSelected(opt.dataset.region);
     opt.hidden = !matches;
     opt.disabled = !matches;
     if (opt.value === courseInput.value && !matches) selectedIsHidden = true;
@@ -340,14 +372,11 @@ function applyFiltersAndRender() {
   if (!lastResult) return;
 
   const selectedCourse = courseInput.value;
-  const selectedRegion = regionInput.value;
   let teeTimes = lastResult.tee_times || [];
   if (selectedCourse !== "all") {
     teeTimes = teeTimes.filter((tt) => tt.course_id === selectedCourse);
   }
-  if (selectedRegion !== "all") {
-    teeTimes = teeTimes.filter((tt) => COURSE_REGIONS[tt.course_id] === selectedRegion);
-  }
+  teeTimes = teeTimes.filter((tt) => isRegionSelected(COURSE_REGIONS[tt.course_id]));
   if (favoritesOnly) {
     teeTimes = teeTimes.filter((tt) => isFavorite(tt.course_id));
   }
@@ -418,6 +447,7 @@ async function search() {
 
 dateInput.value = todayIso();
 updateSliderUI();
+setRegionChipsUI();
 updateCourseOptions();
 updateDirectoryList();
 searchBtn.addEventListener("click", search);
@@ -425,11 +455,6 @@ dateInput.addEventListener("change", search);
 holesInput.addEventListener("change", search);
 playersInput.addEventListener("change", search);
 courseInput.addEventListener("change", applyFiltersAndRender);
-regionInput.addEventListener("change", () => {
-  updateCourseOptions();
-  updateDirectoryList();
-  applyFiltersAndRender();
-});
 viewTimeBtn.addEventListener("click", () => setView("time"));
 viewCourseBtn.addEventListener("click", () => setView("course"));
 unavailableToggle.addEventListener("click", () => {

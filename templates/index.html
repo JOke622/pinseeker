@@ -49,15 +49,15 @@
         <span id="time-label-max"></span>
       </div>
     </div>
-    <label>
-      Region
-      <select id="region-input">
-        <option value="all">All regions</option>
+    <div class="region-filter">
+      <span class="region-filter-title">Region</span>
+      <div class="region-chips" id="region-chips" role="group" aria-label="Region filter">
+        <button type="button" class="region-chip active" data-region="all" aria-pressed="true">All regions</button>
         {% for region in regions %}
-        <option value="{{ region }}">{{ region }}</option>
+        <button type="button" class="region-chip" data-region="{{ region }}" aria-pressed="false">{{ region }}</button>
         {% endfor %}
-      </select>
-    </label>
+      </div>
+    </div>
     <label class="course-filter-label">
       Course
       <select id="course-input">
