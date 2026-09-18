@@ -283,3 +283,20 @@ CHRONOGOLF_COURSES = [
         "booking_url": "https://www.chronogolf.com/club/stow-acres-country-club",
     },
 ]
+
+# --- Directory-only courses (no live availability) ---
+# As of 2026-09-18, both Club Prophet and Chronogolf added Cloudflare
+# protection (a JS/browser challenge on Club Prophet's booking-transaction
+# endpoint, a WAF block page on Chronogolf's) that blocks every one of our
+# API clients uniformly - confirmed across 6 different Club Prophet tenant
+# sites and both Chronogolf clubs, from both this laptop and Render, so it's
+# not an IP-reputation thing we can host our way around. clubprophet_client.py
+# and chronogolf_client.py are left in place (and CLUBPROPHET_COURSES/
+# CHRONOGOLF_COURSES above still describe them) in case that ever reverses,
+# but app.py no longer calls either - this list is what actually renders:
+# a name + direct link so the user can check availability on the real site
+# themselves, instead of the app repeatedly hitting a wall.
+DIRECTORY_ONLY_COURSES = [
+    {"id": c["id"], "name": c["name"], "region": c["region"], "booking_url": c["booking_url"]}
+    for c in CLUBPROPHET_COURSES + CHRONOGOLF_COURSES
+]

@@ -104,6 +104,21 @@
     </table>
   </div>
 
+  <section class="directory-section">
+    <h2 class="directory-title">Can't show live availability for these courses</h2>
+    <p class="directory-subtitle">
+      Their booking sites now block automated access, but you can still check them directly:
+    </p>
+    <ul class="directory-list" id="directory-list">
+      {% for course in directory_courses %}
+      <li class="directory-item" data-region="{{ course.region }}">
+        <span class="directory-name">{{ course.name }}</span>
+        <a class="directory-link" href="{{ course.booking_url }}" target="_blank" rel="noopener">Visit site →</a>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+
   <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

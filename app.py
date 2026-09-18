@@ -17,17 +17,14 @@ from datetime import datetime
 
 from flask import Flask, jsonify, render_template, request
 
-import chronogolf_client
 import clubcaddie_client
-import clubprophet_client
 import easytee_client
 import foreup_client
 import teeitup_client
 import teesnap_client
 from courses import (
-    CHRONOGOLF_COURSES,
     CLUBCADDIE_COURSES,
-    CLUBPROPHET_COURSES,
+    DIRECTORY_ONLY_COURSES,
     EASYTEE_COURSES,
     FOREUP_COURSES,
     TEEITUP_COURSES,
@@ -36,21 +33,28 @@ from courses import (
 
 app = Flask(__name__)
 
+# Club Prophet and Chronogolf are excluded here - both are now blocked by
+# Cloudflare protection platform-wide (see the DIRECTORY_ONLY_COURSES comment
+# in courses.py), so there's nothing to fetch and offering them in the Course
+# dropdown would just produce a confusing empty result every time.
 ALL_COURSES = (
     FOREUP_COURSES
-    + CLUBPROPHET_COURSES
     + TEEITUP_COURSES
     + EASYTEE_COURSES
     + CLUBCADDIE_COURSES
     + TEESNAP_COURSES
-    + CHRONOGOLF_COURSES
 )
-REGIONS = sorted({c["region"] for c in ALL_COURSES})
+REGIONS = sorted({c["region"] for c in ALL_COURSES + DIRECTORY_ONLY_COURSES})
 
 
 @app.route("/")
 def index():
-    return render_template("index.html", courses=ALL_COURSES, regions=REGIONS)
+    return render_template(
+        "index.html",
+        courses=ALL_COURSES,
+        regions=REGIONS,
+        directory_courses=sorted(DIRECTORY_ONLY_COURSES, key=lambda c: c["name"]),
+    )
 
 
 @app.route("/api/tee-times")
@@ -71,18 +75,13 @@ def api_tee_times():
         parsed_date = datetime.now()
 
     foreup_date_str = parsed_date.strftime("%m-%d-%Y")
-    clubprophet_date_str = parsed_date.strftime("%a %b %d %Y")
     teeitup_date_str = parsed_date.strftime("%Y-%m-%d")
     clubcaddie_date_str = parsed_date.strftime("%m/%d/%Y")
     teesnap_date_str = parsed_date.strftime("%Y-%m-%d")
-    chronogolf_date_str = parsed_date.strftime("%Y-%m-%d")
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=7) as pool:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
         foreup_future = pool.submit(
             foreup_client.fetch_all_tee_times, FOREUP_COURSES, foreup_date_str, holes, players
-        )
-        clubprophet_future = pool.submit(
-            clubprophet_client.fetch_all_tee_times, CLUBPROPHET_COURSES, clubprophet_date_str
         )
         teeitup_future = pool.submit(
             teeitup_client.fetch_all_tee_times, TEEITUP_COURSES, teeitup_date_str
@@ -96,17 +95,12 @@ def api_tee_times():
         teesnap_future = pool.submit(
             teesnap_client.fetch_all_tee_times, TEESNAP_COURSES, teesnap_date_str
         )
-        chronogolf_future = pool.submit(
-            chronogolf_client.fetch_all_tee_times, CHRONOGOLF_COURSES, chronogolf_date_str
-        )
         results = (
             foreup_future.result()
-            + clubprophet_future.result()
             + teeitup_future.result()
             + easytee_future.result()
             + clubcaddie_future.result()
             + teesnap_future.result()
-            + chronogolf_future.result()
         )
 
     # Only ForeUp's API actually honors the holes/players params server-side (and

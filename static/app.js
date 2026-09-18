@@ -15,6 +15,16 @@ const resultsTable = document.getElementById("results-table");
 const viewTimeBtn = document.getElementById("view-time-btn");
 const viewCourseBtn = document.getElementById("view-course-btn");
 const favoritesFilterBtn = document.getElementById("favorites-filter-btn");
+const directoryItems = document.querySelectorAll(".directory-item");
+
+// The directory list (courses we can only link to, not fetch) has no
+// date/holes/players dimension - only Region applies to it.
+function updateDirectoryList() {
+  const selectedRegion = regionInput.value;
+  for (const item of directoryItems) {
+    item.hidden = selectedRegion !== "all" && item.dataset.region !== selectedRegion;
+  }
+}
 
 const timeSlider = document.getElementById("time-slider");
 const timeFill = document.getElementById("time-slider-fill");
@@ -409,6 +419,7 @@ async function search() {
 dateInput.value = todayIso();
 updateSliderUI();
 updateCourseOptions();
+updateDirectoryList();
 searchBtn.addEventListener("click", search);
 dateInput.addEventListener("change", search);
 holesInput.addEventListener("change", search);
@@ -416,6 +427,7 @@ playersInput.addEventListener("change", search);
 courseInput.addEventListener("change", applyFiltersAndRender);
 regionInput.addEventListener("change", () => {
   updateCourseOptions();
+  updateDirectoryList();
   applyFiltersAndRender();
 });
 viewTimeBtn.addEventListener("click", () => setView("time"));

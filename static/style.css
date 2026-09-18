@@ -406,6 +406,60 @@ a.book-link:hover {
   text-decoration: underline;
 }
 
+.directory-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.directory-title {
+  font-size: 1rem;
+  margin: 0 0 4px;
+}
+
+.directory-subtitle {
+  color: var(--muted);
+  font-size: 0.88rem;
+  margin: 0 0 14px;
+}
+
+.directory-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.directory-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.directory-name {
+  font-size: 0.9rem;
+}
+
+.directory-link {
+  flex-shrink: 0;
+  color: var(--green);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.directory-link:hover {
+  text-decoration: underline;
+}
+
 @media (prefers-color-scheme: dark) {
   body { background: #111827; color: #e5e7eb; }
   .controls, table, .view-toggle { background: #1f2937; border-color: #374151; }
@@ -427,4 +481,6 @@ a.book-link:hover {
   .favorite-star { color: #4b5563; }
   .favorite-star:hover { color: #f59e0b; }
   .favorite-star.active { color: #fbbf24; }
+  .directory-section { border-color: #374151; }
+  .directory-item { background: #1f2937; border-color: #374151; }
 }
