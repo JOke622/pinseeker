@@ -296,7 +296,58 @@ CHRONOGOLF_COURSES = [
 # but app.py no longer calls either - this list is what actually renders:
 # a name + direct link so the user can check availability on the real site
 # themselves, instead of the app repeatedly hitting a wall.
+#
+# LINK_ONLY_COURSES are from the user's original bookmarks but were never
+# integrated at all: EZLinks (Cloudflare challenge), tenfore.golf (blocked by
+# the corporate network, never reachable to investigate), Atkinson (enterprise
+# SPA whose tee-sheet API couldn't be located), Souhegan Woods (403, no platform
+# identified - homepage only), Granite Links (no identifiable booking vendor).
+LINK_ONLY_COURSES = [
+    {
+        "id": "atkinson",
+        "name": "Atkinson Resort & Country Club",
+        "region": "Southern Maine/New Hampshire",
+        "booking_url": "https://atkinson.totaleintegrated.net/web/tee-times",
+    },
+    {
+        "id": "sagamore_hampton",
+        "name": "Sagamore-Hampton Golf Club",
+        "region": "Southern Maine/New Hampshire",
+        "booking_url": "https://fox.tenfore.golf/sagamorehampton",
+    },
+    {
+        "id": "souhegan_woods",
+        "name": "Souhegan Woods Golf Club",
+        "region": "Southern Maine/New Hampshire",
+        "booking_url": "https://souheganwoods.com/",
+    },
+    {
+        "id": "sagamore_spring",
+        "name": "Sagamore Spring Golf Club",
+        "region": "North Shore",
+        "booking_url": "https://fox.tenfore.golf/sagamorespring",
+    },
+    {
+        "id": "pinehills",
+        "name": "Pinehills Golf Club",
+        "region": "South Shore",
+        "booking_url": "https://pinehillsgolf.ezlinksgolf.com/index.html#/search",
+    },
+    {
+        "id": "waverly_oaks",
+        "name": "Waverly Oaks Golf Club",
+        "region": "South Shore",
+        "booking_url": "https://waverlyoaks.ezlinksgolf.com/index.html#/search",
+    },
+    {
+        "id": "granite_links",
+        "name": "Granite Links Golf Club",
+        "region": "South Shore",
+        "booking_url": "https://www.granitelinks.com/reserve-a-tee-time",
+    },
+]
+
 DIRECTORY_ONLY_COURSES = [
     {"id": c["id"], "name": c["name"], "region": c["region"], "booking_url": c["booking_url"]}
     for c in CLUBPROPHET_COURSES + CHRONOGOLF_COURSES
-]
+] + LINK_ONLY_COURSES
